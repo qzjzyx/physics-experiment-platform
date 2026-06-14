@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>冰-金属摩擦物理实验平台</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">μ</div>
+      <div>
+        <strong>物理实验平台</strong>
+        <span>Ice-Metal Friction Lab</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-target="simulation" title="仿真模拟平台">⌁<span>仿真模拟</span></button>
+      <button class="nav-btn" data-target="realtime" title="实时检测平台">◉<span>实时检测</span></button>
+      <button class="nav-btn" data-target="output" title="数据输出平台">≣<span>数据输出</span></button>
+      <button class="nav-btn" data-target="export" title="数据导出平台">⇩<span>数据导出</span></button>
+    </nav>
+    <div class="status-box">
+      <span class="pulse"></span>
+      <div>
+        <strong id="systemState">待机</strong>
+        <span>采样频率 20 Hz</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div>
+        <h1>冰与金属摩擦系数智能测量平台</h1>
+      </div>
+      <div class="top-actions">
+        <button id="runBtn" class="primary">启动采集</button>
+        <button id="resetBtn" class="ghost">复位</button>
+      </div>
+    </header>
+
+    <section id="simulation" class="view active">
+      <div class="section-head">
+        <h2>仿真模拟平台</h2>
+      </div>
+      <div class="sim-layout">
+        <section class="panel control-panel">
+          <h3>实验工况</h3>
+          <label>金属试样</label>
+          <div class="segmented" id="materialPicker">
+            <button class="selected" data-material="silver">银</button>
+            <button data-material="copper">铜</button>
+            <button data-material="iron">铁</button>
+          </div>
+
+          <label>电机转速 <output id="rpmValue">1200 rpm</output></label>
+          <input id="rpmInput" type="range" min="0" max="2000" value="1200" step="400">
+
+          <label>冰面温度 <output id="tempValue">0.0 ℃</output></label>
+          <input id="tempInput" type="range" min="-5" max="1" value="0" step="0.1">
+
+          <label>法向载荷 <output id="loadValue">50 N</output></label>
+          <input id="loadInput" type="range" min="30" max="80" value="50" step="1">
+
+          <label>信号放大倍率</label>
+          <select id="gainInput">
+            <option value="5">5x</option>
+            <option value="10" selected>10x</option>
+            <option value="20">20x</option>
+          </select>
+        </section>
+
+        <section class="panel scene-panel">
+          <div class="scene-toolbar">
+            <span id="sceneLabel">银质圆柱 / 旋转圆盘直接滑动测量</span>
+            <span id="waterFilm">纳米水膜稳定</span>
+          </div>
+          <canvas id="simCanvas" width="900" height="430"></canvas>
+        </section>
+      </div>
+    </section>
+
+    <section id="realtime" class="view">
+      <div class="section-head">
+        <h2>实时检测平台</h2>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><span>空载电压</span><strong id="idleVoltage">0.720 V</strong></div>
+        <div class="metric"><span>净摩擦电压</span><strong id="netVoltage">0.091 V</strong></div>
+        <div class="metric"><span>摩擦力矩 T</span><strong id="torqueValue">0.02017 N·m</strong></div>
+        <div class="metric"><span>滑动摩擦 μs</span><strong id="slidingMu">0.0121</strong></div>
+      </div>
+      <section class="panel">
+        <div class="chart-head">
+          <h3>电压与摩擦系数实时曲线</h3>
+          <span id="sampleCount">0 samples</span>
+        </div>
+        <canvas id="chartCanvas" width="1120" height="360"></canvas>
+      </section>
+    </section>
+
+    <section id="output" class="view">
+      <div class="section-head">
+        <h2>数据输出平台</h2>
+      </div>
+      <section class="panel">
+        <div class="table-toolbar">
+          <h3>实验数据表</h3>
+          <div class="table-actions">
+            <button id="addPointBtn" class="ghost">记录当前工况</button>
+            <button id="clearDataBtn" class="ghost danger">清空数据</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>材料</th>
+                <th>电机转速 rpm</th>
+                <th>圆盘转速 rpm</th>
+                <th>温度 ℃</th>
+                <th>空载电压 V</th>
+                <th>净电压 V</th>
+                <th>总电压 V</th>
+                <th>摩擦力矩 N·m</th>
+                <th>μs</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="dataBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section id="export" class="view">
+      <div class="section-head">
+        <h2>数据导出平台</h2>
+      </div>
+      <div class="export-layout">
+        <section class="panel export-panel">
+          <h3>导出格式</h3>
+          <button id="csvBtn" class="primary">导出 CSV</button>
+          <button id="jsonBtn" class="ghost">导出 JSON</button>
+          <button id="reportBtn" class="ghost">生成摘要</button>
+        </section>
+        <section class="panel">
+          <h3>实验摘要</h3>
+          <textarea id="reportText" readonly></textarea>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
